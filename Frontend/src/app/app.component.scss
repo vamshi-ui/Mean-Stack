@@ -1,0 +1,45 @@
+::ng-deep .p-toast-top-right {
+  z-index: 999999999999999999999999999999999 !important;
+
+  top: 6.25rem !important;
+
+  opacity: 99;
+}
+
+::ng-deep .p-toast {
+  width: unset !important;
+
+  min-width: 25rem !important;
+
+  max-width: 100% !important;
+}
+
+.footer {
+  transition: all 0.5s ease;
+
+  position: fixed;
+
+  z-index: 2;
+
+  background-color: white;
+
+  bottom: 0;
+
+  width: calc(100% - 5rem);
+
+  margin-left: 5rem;
+
+  color: #666;
+}
+
+.footer-trimmed {
+  width: calc(100% - 16.5625rem);
+
+  margin-left: 16.5625rem;
+}
+
+.footer-mobile {
+  width: 100%;
+
+  margin: 0 !important;
+}

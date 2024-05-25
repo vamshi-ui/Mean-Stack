@@ -1,0 +1,95 @@
+<div class="head" *ngIf="!isMobile">
+  <div class="head-content">
+    <div class="head-content-left">
+      <div class="logo">
+        <!-- <img src="assets/images/App_Logo.png" alt="" /> -->
+
+        <img src="assets/images/matone.png" alt="" />
+
+        <div class="d-flex flex-column mx-2">
+          <small>{{ getCurrentGreeting() }}</small>
+
+          <span>Welcome To Tranzact</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="head-content-right">
+      <div class="head-menu">
+        <div class="head-menu-item">
+          <!-- <button class="head-menu-item-btn ripple">
+  
+              <em class="far fa-bell menu-icon"></em>
+  
+            </button> -->
+
+          <!-- <button
+            class="head-menu-item-btn ripple"
+            routerLink="user-manual/general"
+            title="Help"
+          >
+            <em class="pi pi-question-circle menu-icon"></em>
+          </button> -->
+        </div>
+      </div>
+
+      <div class="head-user-avatar-container">
+        <div class="head-user-avatar d-flex align-items-center">
+          <div class="d-flex flex-column">
+            <span style="font-weight: 500">Welcome Vamshi.Bandela</span>
+
+            <span class="small">Sales Manager</span>
+          </div>
+
+          <img
+            (click)="menu.toggle($event)"
+            src="assets/images/user.png"
+            alt="user"
+            class="user-avatar"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-menu #menu [popup]="true" class="menu-header" [model]="items"></p-menu>
+
+<div class="mobile-header" *ngIf="isMobile">
+  <div style="width: 3rem">
+    <button
+      pButton
+      type="button"
+      (click)="sidebarVisible = true"
+      icon="pi pi-list"
+      iconPos="left"
+    ></button>
+  </div>
+
+  <div class="logo">
+    <!-- <img src="assets/images/RIL_Logo.png" alt="" /> -->
+
+    <img src="assets/images/matone.png" alt="" width="40px" class="py-2" />
+
+    <div class="d-flex flex-column">
+      <small>{{ getCurrentGreeting() }}</small>
+
+      <span>Welcome To Tranzact</span>
+
+      <small class="small">Sales Manager</small>
+    </div>
+  </div>
+
+  <div class="profile">
+    <img
+      (click)="menu.toggle($event)"
+      src="assets/images/user.png"
+      alt="user"
+      class="user-avatar"
+    />
+  </div>
+</div>
+
+<p-sidebar [(visible)]="sidebarVisible">
+  <app-sidenav [isCollapsed]="sidebarVisible"></app-sidenav>
+</p-sidebar>
