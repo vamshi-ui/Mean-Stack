@@ -1,0 +1,59 @@
+<ng-container *ngIf="!multiSelect">
+  <span class="p-float-label">
+    <p-dropdown
+      [filter]="filter"
+      [filterBy]="name"
+      [showClear]="showClear"
+      appendTo="body"
+      [formControl]="control"
+      [readonly]="readOnly"
+      [placeholder]="placeHolder"
+      [ngClass]="{
+        'ng-dirty': control?.touched && control?.hasError('required'),
+
+        'input-disable': readOnly
+      }"
+      [required]="isRequired"
+      (onChange)="selectionChange.emit($event)"
+      [options]="dropdwnList"
+      [optionLabel]="name"
+      [optionValue]="id"
+    ></p-dropdown>
+
+    <label for="float-label">{{ placeHolder }}</label>
+  </span>
+</ng-container>
+
+<ng-container *ngIf="multiSelect">
+  <span class="p-float-label">
+    <p-multiSelect
+      [options]="dropdwnList"
+      [placeholder]="placeHolder"
+      [formControl]="control"
+      [optionLabel]="name"
+      appendTo="body"
+      [ngClass]="{
+        'ng-dirty': control?.touched && control?.hasError('required'),
+
+        'input-disable': readOnly
+      }"
+      (onChange)="selectionChange.emit($event)"
+      [required]="isRequired"
+      [optionValue]="id"
+      autoWidth="false"
+      [style]="{ width: '100%' }"
+      display="chip"
+    ></p-multiSelect>
+
+    <label for="float-label">{{ placeHolder }}</label>
+  </span>
+</ng-container>
+
+<div class="error-wrapper" *ngIf="control?.touched || control?.errors">
+  <small
+    class="p-error"
+    *ngIf="control?.touched && control?.hasError('required')"
+  >
+    {{ placeHolder }} is required
+  </small>
+</div>

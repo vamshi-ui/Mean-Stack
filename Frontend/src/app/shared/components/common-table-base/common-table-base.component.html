@@ -1,0 +1,392 @@
+<div class="card common-table">
+  <p-table
+    [columns]="displayedColumns"
+    [value]="tableData"
+    #dt1
+    [rows]="rows"
+    [(first)]="first"
+    [responsive]="true"
+    [resizableColumns]="true"
+    styleClass="p-datatable-gridlines"
+    [breakpoint]="'768px'"
+    responsiveLayout="stack"
+    [paginator]="true"
+    [(selection)]="selectedRows"
+    [totalRecords]="totalRecords"
+    [globalFilterFields]="fields"
+    [showCurrentPageReport]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+    [rowsPerPageOptions]="rowsperPageOptions"
+    [lazy]="lazy"
+    (onLazyLoad)="onChange($event)"
+  >
+    <ng-template pTemplate="caption">
+      <div class="d-flex justify-content-between">
+        <button
+          pButton
+          label="Clear"
+          class="p-button-outlined"
+          icon="pi pi-filter-slash"
+          class="filter-btn"
+          (click)="clear(dt1); filterFields = null"
+        ></button>
+
+        <div class="d-flex gap-2">
+          <button
+            type="button"
+            pButton
+            pRipple
+            *ngIf="isExcel"
+            (click)="exportExcel.emit(tableData)"
+            icon="pi pi-file-excel"
+            class="p-button-success mr-2"
+            pTooltip="Export to Excel"
+            tooltipPosition="bottom"
+          ></button>
+
+          <span class="p-input-icon-left ml-auto">
+            <em class="pi pi-search"></em>
+
+            <input
+              pInputText
+              type="text"
+              class="w-100"
+              [(ngModel)]="filterFields"
+              (input)="filterGlobal()"
+              placeholder="Search"
+            />
+          </span>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <th style="width: 4rem" scope="col" *ngIf="isCheckbox">
+          <p-tableHeaderCheckbox
+            (click)="handleHeaderCheckboxChange()"
+          ></p-tableHeaderCheckbox>
+        </th>
+
+        <th
+          scope="col"
+          *ngFor="let col of columns"
+          [pSortableColumn]="col?.sortColumn ? col?.sortColumn : col.field"
+          pResizableColumn
+          [pSortableColumnDisabled]="lazy"
+        >
+          <ng-container *ngIf="col.field == 'action'; else othersHeaders">
+            {{ col?.sortColumn ? col?.sortColumn : "Actions" }}
+          </ng-container>
+
+          <!-- filter & sort section starts -->
+
+          <ng-template #othersHeaders>
+            {{ col.header }}
+
+            <p-sortIcon [field]="col.field" *ngIf="!lazy"></p-sortIcon>
+
+            <button
+              type="button"
+              class="p-column-filter-menu-button p-link"
+              [ngClass]="{
+                'p-column-filter-menu-button-active': col.dateValue
+              }"
+              pButton
+              pRipple
+              *ngIf="col.type == 'date'"
+              (click)="toggleOverlay($event, col.dateIndex)"
+              icon="pi pi-filter"
+            ></button>
+
+            <p-columnFilter
+              type="text"
+              [field]="col?.sortColumn ? col?.sortColumn : col.field"
+              display="menu"
+              [showAddButton]="!lazy"
+              *ngIf="!lazy && col.type !== 'date'; else lazyFilter"
+            ></p-columnFilter>
+
+            <ng-template #lazyFilter>
+              <ng-container *ngIf="col.type !== 'date'; else dateFilter">
+                <p-columnFilter
+                  type="text"
+                  [field]="col?.sortColumn ? col?.sortColumn : col.field"
+                  display="menu"
+                  [showAddButton]="false"
+                  [matchModeOptions]="matchModeOptions"
+                ></p-columnFilter>
+              </ng-container>
+
+              <ng-template #dateFilter>
+                <p-overlayPanel>
+                  <ng-template pTemplate>
+                    <p-columnFilter
+                      [field]="col.field"
+                      display="row"
+                      type="date"
+                      [showAddButton]="false"
+                      [matchModeOptions]="matchModeOptions"
+                      [showMenu]="false"
+                      [showApplyButton]="false"
+                      [showClearButton]="false"
+                      class="ml-auto"
+                    >
+                      <ng-template pTemplate="filter">
+                        <p-calendar
+                          [(ngModel)]="col.dateValue"
+                          [appendTo]="'body'"
+                          [readonlyInput]="true"
+                          (ngModelChange)="customFilter($event, col)"
+                          placeholder="select date"
+                        ></p-calendar>
+                      </ng-template>
+                    </p-columnFilter>
+                  </ng-template>
+                </p-overlayPanel>
+              </ng-template>
+            </ng-template>
+          </ng-template>
+
+          <!-- filter & sort section ends -->
+        </th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-rowData let-columns="columns">
+      <tr>
+        <td *ngIf="isCheckbox">
+          <p-tableCheckbox
+            [value]="rowData"
+            (click)="handleHeaderCheckboxChange()"
+          ></p-tableCheckbox>
+        </td>
+
+        <td
+          *ngFor="let col of columns"
+          [ngClass]="
+            col?.field != 'action' && rowData?.cssClass
+              ? rowData?.cssClass[col?.field]
+              : ''
+          "
+          [ngClass]="rowCss(col?.rowStyleClass,col?.rowStyleCondition?.(rowData))"
+        >
+          <ng-container *ngIf="col.field == 'action'; else othersTdHeaders">
+            <span class="ui-column-title">Actions</span>
+          </ng-container>
+
+          <!-- filter & sort section for mobile starts -->
+
+          <ng-template #othersTdHeaders>
+            <div class="d-flex ui-column-title">
+              <span>{{ col.header }}</span>
+
+              <button
+                type="button"
+                class="p-column-filter-menu-button p-link"
+                [ngClass]="{
+                  'p-column-filter-menu-button-active': col.dateValue
+                }"
+                pButton
+                pRipple
+                *ngIf="col.type == 'date'"
+                (click)="toggleOverlay($event, col.dateIndex)"
+                icon="pi pi-filter"
+              ></button>
+
+              <p-columnFilter
+                type="text"
+                [field]="col?.sortColumn ? col?.sortColumn : col.field"
+                display="menu"
+                [showAddButton]="!lazy"
+                *ngIf="!lazy && col.type !== 'date'; else lazyFilter"
+              ></p-columnFilter>
+
+              <ng-template #lazyFilter>
+                <ng-container *ngIf="col.type !== 'date'; else dateFilter">
+                  <p-columnFilter
+                    type="text"
+                    [field]="col?.sortColumn ? col?.sortColumn : col.field"
+                    display="menu"
+                    [showAddButton]="false"
+                    [matchModeOptions]="matchModeOptions"
+                  ></p-columnFilter>
+                </ng-container>
+
+                <ng-template #dateFilter>
+                  <p-overlayPanel>
+                    <ng-template pTemplate>
+                      <p-columnFilter
+                        [field]="col.field"
+                        display="row"
+                        type="date"
+                        [showAddButton]="false"
+                        [matchModeOptions]="matchModeOptions"
+                        [showMenu]="false"
+                        [showApplyButton]="false"
+                        [showClearButton]="false"
+                        class="ml-auto"
+                      >
+                        <ng-template pTemplate="filter">
+                          <p-calendar
+                            [(ngModel)]="col.dateValue"
+                            [appendTo]="'body'"
+                            [readonlyInput]="true"
+                            (ngModelChange)="customFilter($event, col)"
+                            placeholder="select date"
+                          ></p-calendar>
+                        </ng-template>
+                      </p-columnFilter>
+                    </ng-template>
+                  </p-overlayPanel>
+                </ng-template>
+              </ng-template>
+            </div>
+          </ng-template>
+
+          <!-- filter & sort section for mobile ends -->
+
+          <ng-container *ngIf="col.field == 'action'; else others">
+            <div
+              class="mobile-actions"
+              *ngIf="isMobile && col.header.length > 1"
+            >
+              <button
+                pButton
+                icon="pi pi-ellipsis-v"
+                (click)="menuLink.toggle($event)"
+                class="p-button-rounded"
+              ></button>
+
+              <p-menu
+                #menuLink
+                [model]="populateMobileActionMenu(col, rowData)"
+                [popup]="true"
+                [appendTo]="'body'"
+              ></p-menu>
+            </div>
+
+            <ng-container *ngFor="let action of col.header">
+              <ng-container *ngIf="!isMobile || col.header.length == 1">
+                <app-action-buttons
+                  [action]="action"
+                  [rowData]="rowData"
+                  [col]="col"
+                  (actionClick)="handleAction($event)"
+                ></app-action-buttons>
+              </ng-container>
+            </ng-container>
+          </ng-container>
+
+          <ng-template #others>
+            <ng-container *ngIf="isDate(rowData[col.field]); else remaining">
+              <ng-container
+                *ngIf="
+                  hasTimeZoneOffset(rowData[col.field]) as hasOffset;
+                  else noUtc
+                "
+              >
+                {{
+                  rowData[col.field]
+                    | date : "MMM d y, h:mm a" : (hasOffset ? "UTC" : undefined)
+                }}
+              </ng-container>
+
+              <ng-template #noUtc>
+                {{ rowData[col.field] | date : "MMM d y, h:mm a" }}
+              </ng-template>
+            </ng-container>
+
+            <ng-template #remaining>
+              <ng-container *ngIf="col.field == 'statusKey'; else othersTd">
+                <div
+                  class="d-flex align-items-center"
+                  [ngClass]="
+                    rowData[col.field] == 1
+                      ? 'text-success'
+                      : rowData[col.field] == 2
+                      ? 'text-warning'
+                      : 'text-danger'
+                  "
+                >
+                  <button
+                    *ngIf="rowData[col.field] == 1 || rowData[col.field] == 2"
+                    pButton
+                    tooltipPosition="bottom"
+                    icon="pi pi-check-circle"
+                    class="p-button-rounded user-select-none mx-2"
+                    [ngClass]="
+                      rowData[col.field] == 1
+                        ? 'p-button-success'
+                        : 'p-button-warning'
+                    "
+                  ></button>
+
+                  <button
+                    *ngIf="rowData[col.field] == 0"
+                    pButton
+                    tooltipPosition="bottom"
+                    icon="pi pi-times"
+                    class="p-button-rounded user-select-none p-button-danger mx-2"
+                  ></button>
+
+                  {{
+                    rowData[col.field] == 1
+                      ? "Configured"
+                      : rowData[col.field] == 2
+                      ? "Partially Configured"
+                      : "Not Configured"
+                  }}
+                </div>
+              </ng-container>
+
+              <ng-template #othersTd>
+                <div *ngIf="col.field == 'link'; else noLink">
+                  <ng-container
+                    *ngIf="isArray(rowData[col.sortColumn]); else singleLink"
+                  >
+                    <ng-container
+                      *ngFor="
+                        let link of rowData[col.sortColumn];
+                        let last = last
+                      "
+                    >
+                      <ng-container *ngIf="isObject(link); else linkString">
+                        <a (click)="linkClick.emit({link,rowData})">{{
+                          link.value
+                        }}</a
+                        >{{ !last ? ", " : "" }}
+                      </ng-container>
+
+                      <ng-template #linkString>
+                        <a (click)="linkClick.emit({link,rowData})">{{
+                          link
+                        }}</a
+                        >{{ !last ? ", " : "" }}
+                      </ng-template>
+                    </ng-container>
+                  </ng-container>
+
+                  <ng-template #singleLink>
+                    {{ rowData[col.sortColumn] }}
+                  </ng-template>
+                </div>
+
+                <ng-template #noLink>
+                  {{ rowData[col.field] }}
+                </ng-template>
+              </ng-template>
+            </ng-template>
+          </ng-template>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage" let-columns>
+      <tr style="color: #708da9; background: #eff3f8" class="fw-bold">
+        <td class="text-center" [attr.colspan]="displayedColumns.length">
+          No records found
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

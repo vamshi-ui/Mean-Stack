@@ -1,0 +1,60 @@
+@if (inpType === 'text' || inpType === 'email') {
+<span class="p-float-label">
+  <input
+    pInputText
+    [required]="isRequired"
+    [ngClass]="{
+      'ng-dirty': control?.touched && control?.hasError('required'),
+
+      'input-disable': readOnly
+    }"
+    [readonly]="readOnly"
+    (keypress)="controlValue.emit($event)"
+    (input)="inputEvent.emit($event)"
+    (paste)="pasteValue.emit($event)"
+    autocomplete="off"
+    [maxlength]="maxLength"
+    [minlength]="minLength"
+    [formControl]="control"
+  />
+
+  <label [htmlFor]="placeHolder">{{ placeHolder }}</label>
+</span>
+} @if (inpType === 'textarea') {
+<span class="p-float-label">
+  <textarea
+    [class]="className"
+    (blur)="onTouch()"
+    [ngClass]="{
+      'ng-dirty': control?.touched && control?.hasError('required'),
+
+      'input-disable': readOnly
+    }"
+    [placeholder]="placeHolder"
+    [maxlength]="maxLength"
+    [formControl]="control"
+    [minlength]="minLength"
+    [required]="isRequired"
+    [readonly]="readOnly"
+    (keypress)="controlValue.emit($event)"
+    autocomplete="off"
+    pInputTextarea
+  ></textarea>
+
+  <label for="float-input">{{ placeHolder }}</label>
+</span>
+}
+
+<div class="error-wrapper">
+  @if (control?.touched && control?.hasError('required')) {
+  <small class="p-error">
+    {{ errMsg ? errMsg : placeHolder + " is required" }}
+  </small>
+  } @if ( control.errors?.pattern) {
+  <small class="p-error">
+    {{ patternErrMsg ? patternErrMsg : "Please enter valid " + placeHolder }}
+  </small>
+  } @if (control.errors?.minlength) {
+  <small class="p-error"> Minimum length should be {{ minLength }} </small>
+  }
+</div>

@@ -1,0 +1,122 @@
+<button
+  *ngIf="action == 'accept'"
+  [ngClass]="rowCss(col?.rowStyleClass,col?.acceptStyleCondition?.(rowData,action))"
+  pButton
+  pRipple
+  pTooltip="Approve"
+  (click)="actionClick.emit({action,rowData})"
+  tooltipPosition="bottom"
+  icon="pi pi-check"
+  class="p-button-rounded p-button-success mx-2"
+></button>
+
+<button
+  *ngIf="action == 'view'"
+  [ngClass]="rowCss(col?.rowStyleClass,col?.viewStyleCondition?.(rowData,action))"
+  pButton
+  pRipple
+  pTooltip="view"
+  (click)="actionClick.emit({action,rowData})"
+  tooltipPosition="bottom"
+  icon="pi pi-eye"
+  class="p-button-rounded mx-2"
+></button>
+
+<button
+  pButton
+  *ngIf="action == 'reject'"
+  [ngClass]="rowCss(col?.rowStyleClass,col?.rejectStyleCondition?.(rowData,action))"
+  pRipple
+  icon="pi pi-times"
+  (click)="actionClick.emit({action,rowData})"
+  pTooltip="Reject"
+  tooltipPosition="bottom"
+  class="p-button-rounded p-button-danger"
+></button>
+
+<button
+  pButton
+  *ngIf="action == 'request'"
+  [ngClass]="rowCss(col?.rowStyleClass,col?.requestStyleCondition?.(rowData,action))"
+  pRipple
+  (click)="actionClick.emit({action,rowData})"
+  pTooltip="Request"
+  label="Request"
+  tooltipPosition="bottom"
+  class="p-button-primary p-button-rounded"
+></button>
+
+<p-tag
+  value="Requested"
+  *ngIf="
+    action == 'request' && rowData['isRequested'].toLowerCase().trim() == '1'
+  "
+></p-tag>
+
+<button
+  pButton
+  *ngIf="action == 'issue'"
+  [ngClass]="rowCss(col?.rowStyleClass,col?.issueStyleCondition?.(rowData,action))"
+  pRipple
+  (click)="actionClick.emit({action,rowData})"
+  pTooltip="Issue"
+  icon="pi pi-directions"
+  tooltipPosition="bottom"
+  class="p-button-rounded p-button-success mx-2"
+></button>
+
+<button
+  *ngIf="action == 'configure' && isConfigEnabled(rowData)"
+  [ngClass]="rowCss(col?.rowStyleClass,col?.configureStyleCondition?.(rowData,action))"
+  (click)="actionClick.emit({action,rowData})"
+  pButton
+  pRipple
+  pTooltip="configure"
+  tooltipPosition="bottom"
+  icon="pi pi-cog"
+  class="p-button-rounded p-button-primary mx-2"
+></button>
+
+<button
+  *ngIf="action == 'configure' && isEditEnabled(rowData)"
+  [ngClass]="rowCss(col?.rowStyleClass,col?.configureStyleCondition?.(rowData,action))"
+  (click)="actionClick.emit({action,rowData})"
+  pButton
+  pRipple
+  pTooltip="edit"
+  tooltipPosition="bottom"
+  icon="pi pi-pencil"
+  class="p-button-rounded p-button-success mx-2"
+></button>
+
+<button
+  *ngIf="action == 'edit'"
+  [ngClass]="rowCss(col?.rowStyleClass,col?.editStyleCondition?.(rowData,action))"
+  (click)="actionClick.emit({action,rowData})"
+  pButton
+  pRipple
+  pTooltip="edit"
+  tooltipPosition="bottom"
+  icon="pi pi-pencil"
+  class="p-button-rounded p-button-success mx-2"
+></button>
+
+<button
+  pButton
+  *ngIf="action == 'delete'"
+  [ngClass]="rowCss(col?.rowStyleClass,col?.deleteStyleCondition?.(rowData,action))"
+  pRipple
+  (click)="actionClick.emit({action,rowData})"
+  icon="pi pi-trash"
+  pTooltip="delete"
+  tooltipPosition="bottom"
+  class="p-button-rounded p-button-danger mx-2"
+></button>
+
+<p-inputSwitch
+  tooltipPosition="bottom"
+  [pTooltip]="rowData['isActive'] ? 'Deactivate' : 'Activate'"
+  *ngIf="action == 'activate'"
+  [(ngModel)]="rowData['isActive']"
+  (click)="actionClick.emit({action,rowData})"
+></p-inputSwitch>
